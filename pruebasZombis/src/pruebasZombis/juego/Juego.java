@@ -5,9 +5,12 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 
@@ -24,12 +27,16 @@ public class Juego extends Canvas implements Runnable {
 	private int contadorTick;
 	private BufferedImage imagen;
 	private int[] pixels;
+	private ArrayList<Zombi> zombis;
+	private boolean lider;
 	
 	Juego() {
 		contadorTick = 0;
 		running = false;
 		imagen = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 		pixels = ((DataBufferInt) imagen.getRaster().getDataBuffer()).getData();
+		zombis = new ArrayList<Zombi>();
+		lider = false;
 		setMinimumSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
 		setMaximumSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
 		setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
@@ -42,6 +49,23 @@ public class Juego extends Canvas implements Runnable {
 		frame.setResizable(false);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+		addMouseListener(new MouseListener() {
+
+			public void mouseClicked(MouseEvent arg0) {
+				Zombi zombi = new Zombi(WIDTH, HEIGHT);
+				zombi.setPosX(arg0.getX());
+				zombi.setPosY(arg0.getY());
+				zombis.add(zombi);
+			}
+
+			public void mouseEntered(MouseEvent arg0) {}
+
+			public void mouseExited(MouseEvent arg0) {}
+
+			public void mousePressed(MouseEvent arg0) {}
+
+			public void mouseReleased(MouseEvent arg0) {}
+		});
 	}
 
 	public synchronized void start() {
@@ -64,7 +88,7 @@ public class Juego extends Canvas implements Runnable {
 			long ahora = System.nanoTime();
 			delta += (ahora - ultimoTiempoNs) / nsPerTick;
 			ultimoTiempoNs = ahora;
-			boolean deberiaRenderizar = true;
+			boolean deberiaRenderizar = false;
 			
 			while (delta >= 1) {
 				ticks++;
@@ -72,11 +96,11 @@ public class Juego extends Canvas implements Runnable {
 				delta--;
 				deberiaRenderizar = true;
 			}
-			try {
-				Thread.sleep(2);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			//try {
+				//Thread.sleep(2);
+			//} catch (InterruptedException e) {
+				//e.printStackTrace();
+			//}
 			if (deberiaRenderizar) {
 				frames++;
 				render();
@@ -108,8 +132,9 @@ public class Juego extends Canvas implements Runnable {
 		Graphics g = bs.getDrawGraphics();
 		
 		g.drawImage(imagen, 0, 0, getWidth(), getHeight(), null);
-		g.setColor(Color.white);
-		g.fillOval(20, 20, 10, 10);
+		for (int i = 0; i < zombis.size(); i++) {
+			g = zombis.get(i).mover(g);
+		}
 		g.dispose();
 		bs.show();
 	}
