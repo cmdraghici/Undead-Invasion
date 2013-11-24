@@ -58,7 +58,9 @@ public class Juego extends Canvas implements Runnable {
 				zombis.add(zombi);
 			}
 
-			public void mouseEntered(MouseEvent arg0) {}
+			public void mouseEntered(MouseEvent arg0) {
+				
+			}
 
 			public void mouseExited(MouseEvent arg0) {}
 
