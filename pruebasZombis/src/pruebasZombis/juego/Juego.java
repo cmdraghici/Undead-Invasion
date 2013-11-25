@@ -28,15 +28,15 @@ public class Juego extends Canvas implements Runnable {
 	private BufferedImage imagen;
 	private int[] pixels;
 	private ArrayList<Zombi> zombis;
-	private boolean lider;
+	private Grupos grupos;
 	
 	Juego() {
-		contadorTick = 0;
+		setContadorTick(0);
 		running = false;
 		imagen = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-		pixels = ((DataBufferInt) imagen.getRaster().getDataBuffer()).getData();
+		setPixels(((DataBufferInt) imagen.getRaster().getDataBuffer()).getData());
 		zombis = new ArrayList<Zombi>();
-		lider = false;
+		grupos = new Grupos(zombis);
 		setMinimumSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
 		setMaximumSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
 		setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
@@ -52,15 +52,14 @@ public class Juego extends Canvas implements Runnable {
 		addMouseListener(new MouseListener() {
 
 			public void mouseClicked(MouseEvent arg0) {
-				Zombi zombi = new Zombi(WIDTH, HEIGHT);
+				Zombi zombi = new Zombi(WIDTH * SCALE, HEIGHT * SCALE);
 				zombi.setPosX(arg0.getX());
 				zombi.setPosY(arg0.getY());
 				zombis.add(zombi);
+				grupos.setZombis(zombis);
 			}
 
-			public void mouseEntered(MouseEvent arg0) {
-				
-			}
+			public void mouseEntered(MouseEvent arg0) {}
 
 			public void mouseExited(MouseEvent arg0) {}
 
@@ -117,7 +116,8 @@ public class Juego extends Canvas implements Runnable {
 	}
 	
 	public void tick() {
-		contadorTick++;
+		setContadorTick(getContadorTick() + 1);
+		grupos.controlGrupos();
 		
 		//for (int i = 0; i < pixels.length; i++) {
 			//pixels[i] = i + contadorTick;
@@ -134,6 +134,7 @@ public class Juego extends Canvas implements Runnable {
 		Graphics g = bs.getDrawGraphics();
 		
 		g.drawImage(imagen, 0, 0, getWidth(), getHeight(), null);
+		grupos.mover(g);
 		for (int i = 0; i < zombis.size(); i++) {
 			g = zombis.get(i).mover(g);
 		}
@@ -143,5 +144,21 @@ public class Juego extends Canvas implements Runnable {
 	
 	public static void main(String[] args) {
 		new Juego().start();
+	}
+
+	public int getContadorTick() {
+		return contadorTick;
+	}
+
+	public void setContadorTick(int contadorTick) {
+		this.contadorTick = contadorTick;
+	}
+
+	public int[] getPixels() {
+		return pixels;
+	}
+
+	public void setPixels(int[] pixels) {
+		this.pixels = pixels;
 	}
 }
