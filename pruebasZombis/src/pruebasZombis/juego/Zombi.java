@@ -6,8 +6,9 @@ import java.awt.Graphics;
 public class Zombi {
 	public final static int TAM  = 10; // el tamanio del zombi
 	public final static int VISION = 100; // el diametro de vision del zombi
-	public final static double VELOCIDAD_MAX = 1; // la velocidad maxima del zombi
 	public final static int ACTUALIZA_ANGULO = 50; // cada cuantos movimientos se actualiza la direccion del zombi
+	private static final double VEL_MAX = 4;
+	private double agresividad;
 	private double posX;
 	private double posY;
 	private double centroX;
@@ -15,11 +16,14 @@ public class Zombi {
 	private int width;
 	private int height;
 	private int angulo;
+	private double velx;
+	private double vely;
 	private int actualizarAngulo;
 	private boolean lider;
 	private int grupo;
 	
 	Zombi(int width, int height) {
+		agresividad = 1;
 		actualizarAngulo = 0;
 		setGrupo(-1);
 		setLider(false);
@@ -36,17 +40,20 @@ public class Zombi {
 			angulo = getAngulo();
 			double seno = Math.sin(angulo);
 			double coseno = Math.cos(angulo);
-			posX += coseno * VELOCIDAD_MAX;
-			posY += seno * VELOCIDAD_MAX;
+			velx = coseno * agresividad;
+			vely = seno * agresividad;
+			posX += velx;
+			posY += vely;
 			centroX = posX + (TAM / 2D);
 			centroY = posY + (TAM / 2D);
+		
+			g.setColor(Color.white);
+			g.fillOval(getPosX(), getPosY(), Zombi.TAM, Zombi.TAM);
+			g.setColor(Color.red);
+			g.drawArc((int) Math.round(centroX - (VISION / 2D)),
+					(int) Math.round(centroY - (VISION / 2D)), VISION, VISION, 0, 360);
+			colisionBordes();
 		}
-		g.setColor(Color.white);
-		g.fillOval(getPosX(), getPosY(), Zombi.TAM, Zombi.TAM);
-		g.setColor(Color.red);
-		g.drawArc((int)Math.round(centroX - (VISION / 2D)),
-				(int)Math.round(centroY - (VISION / 2D)), VISION, VISION, 0, 360);
-		controlBordes(g);
 		return g;
 	}
 	
@@ -54,17 +61,46 @@ public class Zombi {
 		if (grupo != -1) {
 			double seno = Math.sin(angulo);
 			double coseno = Math.cos(angulo);
-			posX += coseno * VELOCIDAD_MAX;
-			posY += seno * VELOCIDAD_MAX;
+			velx = coseno * agresividad;
+			vely = seno * agresividad;
+			posX += velx;
+			posY += vely;
 			centroX = posX + (TAM / 2D);
 			centroY = posY + (TAM / 2D);
 		}
 		g.setColor(Color.white);
 		g.fillOval(getPosX(), getPosY(), Zombi.TAM, Zombi.TAM);
 		g.setColor(Color.red);
-		g.drawArc((int)Math.round(centroX - (VISION / 2D)),
-				(int)Math.round(centroY - (VISION / 2D)), VISION, VISION, 0, 360);
+		g.drawArc((int) Math.round(centroX - (VISION / 2D)),
+				(int) Math.round(centroY - (VISION / 2D)), VISION, VISION, 0, 360);
+		colisionBordes();
 		return g;
+	}
+	
+	public Graphics moverV(Graphics g) {
+		double realVelx = velx;
+		double realVely = vely;
+		while ((Math.abs(realVelx) + Math.abs(realVely)) > VEL_MAX) {
+			realVelx /= 1.02D;
+			realVely /= 1.02D;
+		}
+		posX = posX + (realVelx * agresividad);
+		posY = posY + (realVely * agresividad);
+		centroX = posX + (TAM / 2D);
+		centroY = posY + (TAM / 2D);
+		g.setColor(Color.white);
+		g.fillOval(getPosX(), getPosY(), Zombi.TAM, Zombi.TAM);
+		g.setColor(Color.red);
+		g.drawArc((int) Math.round(centroX - (VISION / 2D)),
+				(int) Math.round(centroY - (VISION / 2D)), VISION, VISION, 0, 360);
+		colisionBordes();
+		return g;
+	}
+	
+	public double distancia(Zombi z) {
+		double catetoX = Math.abs(z.getPosX() - centroX);
+		double catetoY = Math.abs(z.getPosY() - centroY);
+		return Math.sqrt((catetoX * catetoX) + (catetoY * catetoY));
 	}
 	
 	public boolean detectarZombi(double x, double y) {
@@ -92,6 +128,71 @@ public class Zombi {
 			}
 		}
 		return angulo;
+	}
+	
+	public void colisionBordes() {
+		if (posX < 0) {
+			velx = Math.abs(velx);
+		}
+		if ((posX + TAM) > width) {
+			velx = - Math.abs(velx);
+		}
+		if (posY < 0) {
+			vely = Math.abs(vely);
+		}
+		if ((posY + TAM) > height) {
+			vely = - Math.abs(vely);
+		}
+		/*
+		// borde izquierdo
+		if (posX < 0) {
+			if (vely > 0) { // movimiento hacia abajo
+				double temp = velx;
+				velx = vely;
+				vely = -temp;
+			} else if (vely < 0) { // movimiento hacia arriba
+				double temp = velx;
+				velx = vely;
+				vely = -temp;
+			}
+		}
+		// borde derecho
+		if ((posX + TAM) > width) {
+			if (vely > 0) { // movimiento hacia abajo
+				double temp = velx;
+				velx = vely;
+				vely = -temp;
+			} else if (vely < 0) { // movimiento hacia arriba
+				double temp = velx;
+				velx = vely;
+				vely = -temp;
+			}
+		}
+		// borde superior
+		if (posY < 0) {
+			if (velx > 0) {
+				double temp = vely;
+				vely = velx;
+				velx = -temp;
+			} else {
+				double temp = velx;
+				velx = vely;
+				vely = -temp;
+			}
+		}
+		// borde inferior
+		if ((posY + TAM) > height) {
+			if (velx > 0) {
+				double temp = velx;
+				velx = vely;
+				vely = -temp;
+			} else {
+				double temp = vely;
+				vely = velx;
+				velx = -temp;
+			}
+		}
+		*/
 	}
 	
 	public void controlBordes(Graphics g) {
@@ -208,5 +309,29 @@ public class Zombi {
 
 	public void setGrupo(int grupo) {
 		this.grupo = grupo;
+	}
+
+	public double getVelx() {
+		return velx;
+	}
+
+	public void setVelx(double velx) {
+		this.velx = velx;
+	}
+
+	public double getVely() {
+		return vely;
+	}
+
+	public void setVely(double vely) {
+		this.vely = vely;
+	}
+
+	public double getAgresividad() {
+		return agresividad;
+	}
+
+	public void setAgresividad(double agresividad) {
+		this.agresividad = agresividad;
 	}
 }

@@ -2,7 +2,6 @@ package pruebasZombis.juego;
 
 import java.awt.BorderLayout;
 import java.awt.Canvas;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
@@ -17,7 +16,7 @@ import javax.swing.JFrame;
 public class Juego extends Canvas implements Runnable {
 
 	private static final long serialVersionUID = 1L;
-	public static final int WIDTH = 310;
+	public static final int WIDTH = 420;
 	public static final int HEIGHT = WIDTH / 12 * 9;
 	public static final int SCALE = 3;
 	public static final String NAME = "Undead-Invasion";

@@ -14,7 +14,8 @@ public class Grupos {
 		contadorGrupo = 0;
 		setZombis(zombi);
 	}
-	
+	// sirve para la formacion de nuevos grupos y el ingreso de zombies
+	// en los grupos ya formados
 	public void controlGrupos() {
 		for (int i = 0; i < zombis.size(); i++) {
 			for (int j = 0; j < zombis.size(); j++) {
