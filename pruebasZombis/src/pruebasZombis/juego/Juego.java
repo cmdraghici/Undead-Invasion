@@ -4,14 +4,17 @@ import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.util.ArrayList;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 public class Juego extends Canvas implements Runnable {
 
@@ -26,16 +29,14 @@ public class Juego extends Canvas implements Runnable {
 	private int contadorTick;
 	private BufferedImage imagen;
 	private int[] pixels;
-	private ArrayList<Zombi> zombis;
-	private Grupos grupos;
+	private Pantalla pantalla;
 	
 	Juego() {
 		setContadorTick(0);
 		running = false;
+		pantalla = new Pantalla(WIDTH * SCALE, HEIGHT * SCALE);
 		imagen = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 		setPixels(((DataBufferInt) imagen.getRaster().getDataBuffer()).getData());
-		zombis = new ArrayList<Zombi>();
-		grupos = new Grupos(zombis);
 		setMinimumSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
 		setMaximumSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
 		setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
@@ -47,15 +48,14 @@ public class Juego extends Canvas implements Runnable {
 		frame.pack();
 		frame.setResizable(false);
 		frame.setLocationRelativeTo(null);
+		frame.setFocusable(true);
 		frame.setVisible(true);
 		addMouseListener(new MouseListener() {
 
 			public void mouseClicked(MouseEvent arg0) {
-				Zombi zombi = new Zombi(WIDTH * SCALE, HEIGHT * SCALE);
-				zombi.setPosX(arg0.getX());
-				zombi.setPosY(arg0.getY());
-				zombis.add(zombi);
-				grupos.setZombis(zombis);
+				if (SwingUtilities.isLeftMouseButton(arg0)) {
+					pantalla.addZombi(arg0.getX(), arg0.getY());
+				}
 			}
 
 			public void mouseEntered(MouseEvent arg0) {}
@@ -65,6 +65,37 @@ public class Juego extends Canvas implements Runnable {
 			public void mousePressed(MouseEvent arg0) {}
 
 			public void mouseReleased(MouseEvent arg0) {}
+		});
+		this.addMouseMotionListener(new MouseMotionListener() {
+
+			public void mouseDragged(MouseEvent arg0) {}
+
+			public void mouseMoved(MouseEvent arg0) {
+				pantalla.apuntar(arg0.getX(), arg0.getY());
+			}
+			
+		});
+		this.addKeyListener(new KeyListener() {
+
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar() == 's') {
+					pantalla.moverAbajo();
+				}
+				if (e.getKeyChar() == 'a') {
+					pantalla.moverIzquierda();;
+				}
+				if (e.getKeyChar() == 'w') {
+					pantalla.moverArriba();;
+				}
+				if (e.getKeyChar() == 'd') {
+					pantalla.moverDerecha();
+				}
+			}
+
+			public void keyReleased(KeyEvent e) {}
+
+			public void keyTyped(KeyEvent e) {}
+			
 		});
 	}
 
@@ -80,7 +111,9 @@ public class Juego extends Canvas implements Runnable {
 	public void run() {
 		long ultimoTiempoNs = System.nanoTime();
 		double nsPerTick = 1000000000D / 60D;
+		@SuppressWarnings("unused")
 		int ticks = 0;
+		@SuppressWarnings("unused")
 		int frames = 0;
 		long ultimoTiempoMs = System.currentTimeMillis();
 		double delta = 0;
@@ -96,11 +129,6 @@ public class Juego extends Canvas implements Runnable {
 				delta--;
 				deberiaRenderizar = true;
 			}
-			//try {
-				//Thread.sleep(2);
-			//} catch (InterruptedException e) {
-				//e.printStackTrace();
-			//}
 			if (deberiaRenderizar) {
 				frames++;
 				render();
@@ -116,11 +144,7 @@ public class Juego extends Canvas implements Runnable {
 	
 	public void tick() {
 		setContadorTick(getContadorTick() + 1);
-		grupos.controlGrupos();
-		
-		//for (int i = 0; i < pixels.length; i++) {
-			//pixels[i] = i + contadorTick;
-		//}
+		pantalla.controlGrupos();
 	}
 	
 	public void render() {
@@ -129,14 +153,9 @@ public class Juego extends Canvas implements Runnable {
 			createBufferStrategy(3);
 			return;
 		}
-		
 		Graphics g = bs.getDrawGraphics();
-		
 		g.drawImage(imagen, 0, 0, getWidth(), getHeight(), null);
-		grupos.mover(g);
-		for (int i = 0; i < zombis.size(); i++) {
-			g = zombis.get(i).mover(g);
-		}
+		pantalla.render(g);
 		g.dispose();
 		bs.show();
 	}

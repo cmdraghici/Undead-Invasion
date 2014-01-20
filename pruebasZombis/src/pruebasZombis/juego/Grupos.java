@@ -1,6 +1,5 @@
 package pruebasZombis.juego;
 
-import java.awt.Graphics;
 import java.util.ArrayList;
 
 public class Grupos {
@@ -54,9 +53,9 @@ public class Grupos {
 		this.zombis = zombis;
 	}
 
-	public void mover(Graphics g) {
+	public void mover() {
 		for (int i = 0; i < grupos.size(); i++) {
-			grupos.get(i).mover(g);
+			grupos.get(i).mover();
 		}
 	}
 }

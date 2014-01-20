@@ -1,6 +1,5 @@
 package pruebasZombis.juego;
 
-import java.awt.Graphics;
 import java.util.ArrayList;
 
 public class Grupo {
@@ -18,7 +17,7 @@ public class Grupo {
 		zombis.add(zombi);
 	}
 
-	public void mover(Graphics g) {
+	public void mover() {
 		for (int i = 0; i < zombis.size(); i++) {
 			Velocidad vel = new Velocidad();
 			Velocidad vel2 = new Velocidad();
@@ -30,7 +29,7 @@ public class Grupo {
 			vel.suma(vel3);
 			zombis.get(i).setVelx(zombis.get(i).getVelx() + vel.getVelx());
 			zombis.get(i).setVely(zombis.get(i).getVely() + vel.getVely());
-			zombis.get(i).moverV(g);
+			zombis.get(i).moverV();
 		}
 	}
 	

@@ -1,13 +1,10 @@
 package pruebasZombis.juego;
 
-import java.awt.Color;
-import java.awt.Graphics;
-
 public class Zombi {
 	public final static int TAM  = 10; // el tamanio del zombi
 	public final static int VISION = 100; // el diametro de vision del zombi
 	public final static int ACTUALIZA_ANGULO = 50; // cada cuantos movimientos se actualiza la direccion del zombi
-	private static final double VEL_MAX = 4;
+	private static final double VEL_MAX = 1.5;
 	private double agresividad;
 	private double posX;
 	private double posY;
@@ -35,9 +32,14 @@ public class Zombi {
 		centroY = (posY + TAM) / 2D;
 	}
 	
-	public Graphics mover(Graphics g) {
+	public void mover() {
 		if (grupo == -1) {
-			angulo = getAngulo();
+			if (actualizarAngulo == 50) {
+				angulo = (int) Math.round(360 * Math.random());
+				actualizarAngulo = 0;
+			} else {
+				actualizarAngulo++;
+			}
 			double seno = Math.sin(angulo);
 			double coseno = Math.cos(angulo);
 			velx = coseno * agresividad;
@@ -46,18 +48,11 @@ public class Zombi {
 			posY += vely;
 			centroX = posX + (TAM / 2D);
 			centroY = posY + (TAM / 2D);
-		
-			g.setColor(Color.white);
-			g.fillOval(getPosX(), getPosY(), Zombi.TAM, Zombi.TAM);
-			g.setColor(Color.red);
-			g.drawArc((int) Math.round(centroX - (VISION / 2D)),
-					(int) Math.round(centroY - (VISION / 2D)), VISION, VISION, 0, 360);
 			colisionBordes();
 		}
-		return g;
 	}
 	
-	public Graphics mover(Graphics g, int angulo) {
+	public void mover(int angulo) {
 		if (grupo != -1) {
 			double seno = Math.sin(angulo);
 			double coseno = Math.cos(angulo);
@@ -68,16 +63,10 @@ public class Zombi {
 			centroX = posX + (TAM / 2D);
 			centroY = posY + (TAM / 2D);
 		}
-		g.setColor(Color.white);
-		g.fillOval(getPosX(), getPosY(), Zombi.TAM, Zombi.TAM);
-		g.setColor(Color.red);
-		g.drawArc((int) Math.round(centroX - (VISION / 2D)),
-				(int) Math.round(centroY - (VISION / 2D)), VISION, VISION, 0, 360);
 		colisionBordes();
-		return g;
 	}
 	
-	public Graphics moverV(Graphics g) {
+	public void moverV() {
 		double realVelx = velx;
 		double realVely = vely;
 		while ((Math.abs(realVelx) + Math.abs(realVely)) > VEL_MAX) {
@@ -88,18 +77,18 @@ public class Zombi {
 		posY = posY + (realVely * agresividad);
 		centroX = posX + (TAM / 2D);
 		centroY = posY + (TAM / 2D);
-		g.setColor(Color.white);
-		g.fillOval(getPosX(), getPosY(), Zombi.TAM, Zombi.TAM);
-		g.setColor(Color.red);
-		g.drawArc((int) Math.round(centroX - (VISION / 2D)),
-				(int) Math.round(centroY - (VISION / 2D)), VISION, VISION, 0, 360);
 		colisionBordes();
-		return g;
 	}
 	
 	public double distancia(Zombi z) {
-		double catetoX = Math.abs(z.getPosX() - centroX);
-		double catetoY = Math.abs(z.getPosY() - centroY);
+		double catetoX = Math.abs(z.getCentroX() - centroX);
+		double catetoY = Math.abs(z.getCentroY() - centroY);
+		return Math.sqrt((catetoX * catetoX) + (catetoY * catetoY));
+	}
+	
+	public double distancia(int x, int y) {
+		double catetoX = Math.abs(x - centroX);
+		double catetoY = Math.abs(y - centroY);
 		return Math.sqrt((catetoX * catetoX) + (catetoY * catetoY));
 	}
 	
@@ -114,20 +103,14 @@ public class Zombi {
 		return false;
 	}
 	
-	public int getAngulo() {
-		int angulo = 0;
-		// caso en el que debemos cambiar la direccion en la que el zombi se desplaza
-		if(actualizarAngulo == 0) {
-			angulo = (int) Math.round(Math.random() * 360D);
-			actualizarAngulo++;
-		} else { //caso en el que se mantiene la direccion
-			angulo = this.angulo;
-			actualizarAngulo++;
-			if (actualizarAngulo == ACTUALIZA_ANGULO + 1) {
-				actualizarAngulo = 0;
-			}
-		}
-		return angulo;
+	public double getAngulo() {
+		double angulo = 0;
+		double x = posX + velx;
+		double y = posY + vely;
+		double a = Math.abs(y - posY);
+		double b = Math.abs(x - posX);
+		angulo = Math.atan(a / b);
+		return Math.toDegrees(angulo);
 	}
 	
 	public void colisionBordes() {
@@ -142,115 +125,6 @@ public class Zombi {
 		}
 		if ((posY + TAM) > height) {
 			vely = - Math.abs(vely);
-		}
-		/*
-		// borde izquierdo
-		if (posX < 0) {
-			if (vely > 0) { // movimiento hacia abajo
-				double temp = velx;
-				velx = vely;
-				vely = -temp;
-			} else if (vely < 0) { // movimiento hacia arriba
-				double temp = velx;
-				velx = vely;
-				vely = -temp;
-			}
-		}
-		// borde derecho
-		if ((posX + TAM) > width) {
-			if (vely > 0) { // movimiento hacia abajo
-				double temp = velx;
-				velx = vely;
-				vely = -temp;
-			} else if (vely < 0) { // movimiento hacia arriba
-				double temp = velx;
-				velx = vely;
-				vely = -temp;
-			}
-		}
-		// borde superior
-		if (posY < 0) {
-			if (velx > 0) {
-				double temp = vely;
-				vely = velx;
-				velx = -temp;
-			} else {
-				double temp = velx;
-				velx = vely;
-				vely = -temp;
-			}
-		}
-		// borde inferior
-		if ((posY + TAM) > height) {
-			if (velx > 0) {
-				double temp = velx;
-				velx = vely;
-				vely = -temp;
-			} else {
-				double temp = vely;
-				vely = velx;
-				velx = -temp;
-			}
-		}
-		*/
-	}
-	
-	public void controlBordes(Graphics g) {
-		// borde izquierdo
-		if ((centroX - (VISION / 2)) < 0) {
-			g.setColor(Color.red);
-			g.drawArc((int)Math.round((centroX + width) - (VISION / 2D)),
-					(int)Math.round(centroY - (VISION / 2D)), VISION, VISION, 0, 360);
-			if ((centroX - (TAM / 2)) < 0) {
-				g.setColor(Color.white);
-				g.fillOval(getPosX() + width, getPosY(), Zombi.TAM, Zombi.TAM);
-			}
-			if (centroX + (VISION / 2) < 0) {
-				posX += width;
-				centroX = posX + (TAM / 2D);
-			}
-		}
-		// borde derecho
-		if ((centroX + (VISION / 2)) > width) {
-			g.setColor(Color.red);
-			g.drawArc((int)Math.round((centroX - width) - (VISION / 2D)),
-					(int)Math.round(centroY - (VISION / 2D)), VISION, VISION, 0, 360);
-			if ((centroX + (TAM / 2)) > width) {
-				g.setColor(Color.white);
-				g.fillOval(getPosX() - width, getPosY(), Zombi.TAM, Zombi.TAM);
-			}
-			if (centroX - (VISION / 2) > width) {
-				posX -= width;
-				centroX = posX + (TAM / 2D);
-			}
-		}
-		// borde superior
-		if ((centroY - (VISION / 2)) < 0) {
-			g.setColor(Color.red);
-			g.drawArc((int)Math.round(centroX - (VISION / 2D)),
-					(int)Math.round((centroY + height) - (VISION / 2D)), VISION, VISION, 0, 360);
-			if ((centroY - (TAM / 2)) < 0) {
-				g.setColor(Color.white);
-				g.fillOval(getPosX(), getPosY() + height, Zombi.TAM, Zombi.TAM);
-			}
-			if (centroY + (VISION / 2) < 0) {
-				posY += height;
-				centroY = posY + (TAM / 2D);
-			}
-		}
-		// borde inferior
-		if ((centroY + (VISION / 2)) > height) {
-			g.setColor(Color.red);
-			g.drawArc((int)Math.round(centroX - (VISION / 2D)),
-					(int)Math.round((centroY - height) - (VISION / 2D)), VISION, VISION, 0, 360);
-			if ((centroY + (TAM / 2)) > height) {
-				g.setColor(Color.white);
-				g.fillOval(getPosX(), getPosY() - height, Zombi.TAM, Zombi.TAM);
-			}
-			if (centroY - (VISION / 2) > height) {
-				posY -= height;
-				centroY = posY + (TAM / 2D);
-			}
 		}
 	}
 	
