@@ -2,32 +2,49 @@ package pruebasZombis.juego;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 
 public class Pantalla {
-	// tamaño mapa
-	public final static int MAP_WIDTH = 3000;
-	public final static int MAP_HEIGHT = 4000;
+	//tamaño mapa
+	public final static int MAP_WIDTH = 2360;
+	public final static int MAP_HEIGHT = 2510;
 	//tamaño pantalla
 	private int width;
 	private int height;
 	//zombis
 	private ArrayList<Zombi> zombis;
 	private Grupos grupos;
-	// localizacion pantalla
+	//localizacion pantalla
 	private int x;
 	private int y;
 	//jugador
 	private Jugador jugador;
+	//movimiento
+	private boolean arriba;
+	private boolean abajo;
+	private boolean izquierda;
+	private boolean derecha;
+	//disparos
+	Disparos disparos;
+	private Image mapa;
 	
 	Pantalla(int width, int height) {
 		this.setX(0);
 		this.setY(0);
+		disparos = new Disparos(MAP_WIDTH, MAP_HEIGHT);
 		this.width = width;
 		this.height = height;
 		jugador = new Jugador(this.width, this.height);
 		zombis = new ArrayList<Zombi>();
 		grupos = new Grupos(zombis);
+		setArriba(false);
+		setAbajo(false);
+		setIzquierda(false);
+		setDerecha(false);
+		mapa = Toolkit.getDefaultToolkit().getImage("mapazombies.png");
 	}
 	
 	public void addZombi(int x, int y) {
@@ -42,12 +59,50 @@ public class Pantalla {
 		grupos.controlGrupos();
 	}
 	
-	public void apuntar(int x, int y) {
-		jugador.apuntar(x, y);
-		System.out.println(jugador.getAngulo());
+	public void moverCamara() {
+		if (arriba && izquierda && derecha && abajo) {
+		
+		} else if (arriba && izquierda && derecha) {
+			
+		} else if (arriba && izquierda && abajo) {
+			
+		} else if (arriba && derecha && abajo) {
+			
+		} else if (abajo && izquierda && derecha) {
+			
+		} else if (izquierda && derecha) {
+			
+		} else if (arriba && abajo) {
+			
+		} else if (arriba && izquierda) {
+			moverArriba((int) Math.round(jugador.getVely() / 2.0D));
+			moverIzquierda((int) Math.round(jugador.getVelx() / 2.0D));
+		} else if (arriba && derecha) {
+			moverArriba((int) Math.round(jugador.getVely() / 2.0D));
+			moverDerecha((int) Math.round(jugador.getVelx() / 2.0D));
+		} else if (abajo && izquierda) {
+			moverAbajo((int) Math.round(jugador.getVely() / 2.0D));
+			moverIzquierda((int) Math.round(jugador.getVelx() / 2.0D));
+		} else if (abajo && derecha) {
+			moverAbajo((int) Math.round(jugador.getVely() / 2.0D));
+			moverDerecha((int) Math.round(jugador.getVelx() / 2.0D));
+		} else if (arriba) {
+			moverArriba((int) Math.round(jugador.getVely() / 2.0D));
+		} else if (abajo) {
+			moverAbajo((int) Math.round(jugador.getVely() / 2.0D));
+		} else if (izquierda) {
+			moverIzquierda((int) Math.round(jugador.getVelx() / 2.0D));
+		} else if (derecha) {
+			moverDerecha((int) Math.round(jugador.getVelx() / 2.0D));
+		}
 	}
 	
-	public void render(Graphics g) {
+	public void apuntar(int x, int y) {
+		jugador.apuntar(x, y);
+	}
+	
+	public void render(Graphics g, Juego j) {
+		g.drawImage(mapa, 0 - x, 0 - y, MAP_WIDTH, MAP_HEIGHT, j);
 		grupos.mover();
 		dibujarLimites(g);
 		dibujarJugador(g);
@@ -62,6 +117,7 @@ public class Pantalla {
 			g.setColor(Color.white);
 			g.fillOval(x, y, Zombi.TAM, Zombi.TAM);
 		}
+		disparos.actualizar(g, zombis, x, y);
 	}
 	
 	public void dibujarJugador(Graphics g) {
@@ -83,20 +139,20 @@ public class Pantalla {
 		jugador.calcPosicion(this.x, this.y);
 	}
 	
-	public void moverAbajo() {
-		this.y += jugador.getVely();
+	public void moverAbajo(int y) {
+		this.y += y;
 	}
 	
-	public void moverArriba() {
-		this.y -= jugador.getVely();
+	public void moverArriba(int y) {
+		this.y -= y;
 	}
 	
-	public void moverDerecha() {
-		this.x += jugador.getVelx();
+	public void moverDerecha(int x) {
+		this.x += x;
 	}
 	
-	public void moverIzquierda() {
-		this.x -= jugador.getVelx();
+	public void moverIzquierda(int x) {
+		this.x -= x;
 	}
 
 	public int getX() {
@@ -113,5 +169,45 @@ public class Pantalla {
 
 	public void setY(int y) {
 		this.y = y;
+	}
+
+	public boolean isArriba() {
+		return arriba;
+	}
+
+	public void setArriba(boolean arriba) {
+		this.arriba = arriba;
+	}
+
+	public boolean isAbajo() {
+		return abajo;
+	}
+
+	public void setAbajo(boolean abajo) {
+		this.abajo = abajo;
+	}
+
+	public boolean isIzquierda() {
+		return izquierda;
+	}
+
+	public void setIzquierda(boolean izquierda) {
+		this.izquierda = izquierda;
+	}
+
+	public boolean isDerecha() {
+		return derecha;
+	}
+
+	public void setDerecha(boolean derecha) {
+		this.derecha = derecha;
+	}
+
+	public void disparo(int x2, int y2) {
+		disparos.add(jugador.getCentroX(), jugador.getCentroY(), x2 + x, y2 + y);
+	}
+
+	public void setDisparo(boolean b) {
+		disparos.setDisparo(b);
 	}
 }

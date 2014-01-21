@@ -53,7 +53,7 @@ public class Juego extends Canvas implements Runnable {
 		addMouseListener(new MouseListener() {
 
 			public void mouseClicked(MouseEvent arg0) {
-				if (SwingUtilities.isLeftMouseButton(arg0)) {
+				if (SwingUtilities.isRightMouseButton(arg0)) {
 					pantalla.addZombi(arg0.getX(), arg0.getY());
 				}
 			}
@@ -62,9 +62,18 @@ public class Juego extends Canvas implements Runnable {
 
 			public void mouseExited(MouseEvent arg0) {}
 
-			public void mousePressed(MouseEvent arg0) {}
+			public void mousePressed(MouseEvent arg0) {
+				if (SwingUtilities.isLeftMouseButton(arg0)) {
+					pantalla.setDisparo(true);
+					pantalla.disparo(arg0.getX(), arg0.getY());
+				}
+			}
 
-			public void mouseReleased(MouseEvent arg0) {}
+			public void mouseReleased(MouseEvent arg0) {
+				if (SwingUtilities.isLeftMouseButton(arg0)) {
+					pantalla.setDisparo(false);
+				}
+			}
 		});
 		this.addMouseMotionListener(new MouseMotionListener() {
 
@@ -79,20 +88,34 @@ public class Juego extends Canvas implements Runnable {
 
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyChar() == 's') {
-					pantalla.moverAbajo();
+					pantalla.setAbajo(true);
 				}
 				if (e.getKeyChar() == 'a') {
-					pantalla.moverIzquierda();;
+					pantalla.setIzquierda(true);
 				}
 				if (e.getKeyChar() == 'w') {
-					pantalla.moverArriba();;
+					pantalla.setArriba(true);
 				}
 				if (e.getKeyChar() == 'd') {
-					pantalla.moverDerecha();
+					pantalla.setDerecha(true);
 				}
+				pantalla.moverCamara();
 			}
 
-			public void keyReleased(KeyEvent e) {}
+			public void keyReleased(KeyEvent e) {
+				if (e.getKeyChar() == 's') {
+					pantalla.setAbajo(false);
+				}
+				if (e.getKeyChar() == 'a') {
+					pantalla.setIzquierda(false);
+				}
+				if (e.getKeyChar() == 'w') {
+					pantalla.setArriba(false);
+				}
+				if (e.getKeyChar() == 'd') {
+					pantalla.setDerecha(false);
+				}
+			}
 
 			public void keyTyped(KeyEvent e) {}
 			
@@ -155,7 +178,7 @@ public class Juego extends Canvas implements Runnable {
 		}
 		Graphics g = bs.getDrawGraphics();
 		g.drawImage(imagen, 0, 0, getWidth(), getHeight(), null);
-		pantalla.render(g);
+		pantalla.render(g, this);
 		g.dispose();
 		bs.show();
 	}

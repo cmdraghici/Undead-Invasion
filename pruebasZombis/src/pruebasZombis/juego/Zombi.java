@@ -104,13 +104,9 @@ public class Zombi {
 	}
 	
 	public double getAngulo() {
-		double angulo = 0;
 		double x = posX + velx;
 		double y = posY + vely;
-		double a = Math.abs(y - posY);
-		double b = Math.abs(x - posX);
-		angulo = Math.atan(a / b);
-		return Math.toDegrees(angulo);
+		return Operaciones.angulo(posX, posY, x, y);
 	}
 	
 	public void colisionBordes() {

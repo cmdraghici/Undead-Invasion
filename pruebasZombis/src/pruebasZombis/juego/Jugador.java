@@ -83,10 +83,6 @@ public class Jugador {
 	}
 
 	public double getAngulo() {
-		double angulo = 0;
-		double a = Math.abs(apuntaY - centroY);
-		double b = Math.abs(apuntaX - centroX);
-		angulo = Math.atan(a / b);
-		return Math.toDegrees(angulo);
+		return Operaciones.angulo(centroX, centroY, apuntaX, apuntaY);
 	}
 }
