@@ -30,11 +30,13 @@ public class Juego extends Canvas implements Runnable {
 	private BufferedImage imagen;
 	private int[] pixels;
 	private Pantalla pantalla;
+	private int tiempo;
 	
 	Juego() {
 		setContadorTick(0);
+		tiempo = 0;
 		running = false;
-		pantalla = new Pantalla(WIDTH * SCALE, HEIGHT * SCALE);
+		pantalla = new Pantalla(WIDTH * SCALE, HEIGHT * SCALE, this);
 		imagen = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 		setPixels(((DataBufferInt) imagen.getRaster().getDataBuffer()).getData());
 		setMinimumSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
@@ -158,6 +160,12 @@ public class Juego extends Canvas implements Runnable {
 			}
 			
 			if (System.currentTimeMillis() - ultimoTiempoMs > 1000) {
+				tiempo++;
+				if (tiempo >= 3) {
+					pantalla.addRandomZombi();
+					pantalla.addRandomZombi();
+					tiempo = 0;
+				}
 				ultimoTiempoMs += 1000;
 				frames = 0;
 				ticks = 0;

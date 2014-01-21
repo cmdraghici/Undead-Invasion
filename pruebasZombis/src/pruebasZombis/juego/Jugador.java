@@ -1,7 +1,8 @@
 package pruebasZombis.juego;
 
 public class Jugador {
-	public final static int TAM_JUGADOR = 20;
+	public final static int TAM_JUGADOR = 18;
+	public final static int VIDA = 1;
 	private double posXPantalla;
 	private double posYPantalla;
 	private double posXMapa;
@@ -12,14 +13,16 @@ public class Jugador {
 	private double vely;
 	private double apuntaX;
 	private double apuntaY;
+	private int vida;
 	
 	Jugador(int width, int height) {
 		setPosXPantalla((width / 2.0D) - (TAM_JUGADOR / 2.0D));
 		setPosYPantalla((height / 2.0D) - (TAM_JUGADOR / 2.0D));
-		setVelx(5);
-		setVely(5);
+		setVelx(6);
+		setVely(6);
 		apuntaX = 0;
 		apuntaY = 0;
+		setVida(VIDA);
 	}
 	
 	public void apuntar(int x, int y) {
@@ -84,5 +87,17 @@ public class Jugador {
 
 	public double getAngulo() {
 		return Operaciones.angulo(centroX, centroY, apuntaX, apuntaY);
+	}
+
+	public void mordisco() {
+		setVida(getVida() - 1);
+	}
+
+	public int getVida() {
+		return vida;
+	}
+
+	public void setVida(int vida) {
+		this.vida = vida;
 	}
 }

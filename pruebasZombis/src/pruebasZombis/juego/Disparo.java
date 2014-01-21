@@ -1,7 +1,5 @@
 package pruebasZombis.juego;
 
-import java.util.ArrayList;
-
 public class Disparo {
 	private int posX;
 	private int posY;
@@ -51,14 +49,4 @@ public class Disparo {
 	public void setDanio(double danio) {
 		this.danio = danio;
 	}
-
-	public void colisionZombi(ArrayList<Zombi> zombis) {
-		for (int i = 0; i < zombis.size(); i++) {
-			if ((posX > zombis.get(i).getPosX()) && 
-					(posX < (zombis.get(i).getPosX() + Zombi.TAM))) {
-				
-			}
-		}
-	}
-	
 }

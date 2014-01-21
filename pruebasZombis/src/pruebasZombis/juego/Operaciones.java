@@ -21,4 +21,10 @@ public class Operaciones {
 		angulo = (Math.toDegrees(angulo));
 		return angulo;
 	}
+	
+	public static double distancia(double x1, double y1, double x2, double y2) {
+		double catetoX = Math.abs(x1 - x2);
+		double catetoY = Math.abs(y1 - y2);
+		return Math.sqrt((catetoX * catetoX) + (catetoY * catetoY));
+	}
 }
